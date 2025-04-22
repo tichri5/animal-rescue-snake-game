@@ -35,40 +35,178 @@ let lastOfficerSpawn = 0;
 let lastPowerupSpawn = 0;
 let lastRescueTruckSpawn = 0;
 
-// Audio control
-let bgMusic;
-let isMusicPlaying = false;
-
-// Game state variables
-let gameState = {
-    score: 0,
-    level: 1,
-    lives: 3,
-    isPaused: false,
-    isGameOver: false
-};
-
-function initAudio() {
-    bgMusic = document.getElementById('bgMusic');
-    bgMusic.volume = 0.3; // Set initial volume to 30%
-    bgMusic.addEventListener('ended', function() {
-        bgMusic.currentTime = 0;
-        if (isMusicPlaying) {
-            bgMusic.play();
-        }
-    });
+// Sprite creation functions
+function createDogSprite() {
+    const sprite = document.createElement('canvas');
+    sprite.width = GRID_SIZE;
+    sprite.height = GRID_SIZE;
+    const ctx = sprite.getContext('2d');
+    
+    // Body
+    ctx.fillStyle = '#8B4513'; // Brown
+    ctx.fillRect(8, 12, 24, 20);
+    
+    // Head
+    ctx.fillRect(24, 8, 16, 16);
+    
+    // Ears
+    ctx.fillStyle = '#654321'; // Darker brown
+    ctx.fillRect(26, 4, 8, 8);
+    ctx.fillRect(34, 4, 8, 8);
+    
+    // Eyes
+    ctx.fillStyle = 'black';
+    ctx.fillRect(28, 12, 4, 4);
+    ctx.fillRect(36, 12, 4, 4);
+    
+    // Nose
+    ctx.fillRect(32, 16, 4, 4);
+    
+    // Tail
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(4, 20, 8, 4);
+    
+    return sprite;
 }
 
-function toggleMusic() {
-    const musicToggle = document.getElementById('musicToggle');
-    if (isMusicPlaying) {
-        bgMusic.pause();
-        musicToggle.textContent = '🔈 Music';
-    } else {
-        bgMusic.play();
-        musicToggle.textContent = '🔊 Music';
-    }
-    isMusicPlaying = !isMusicPlaying;
+function createCatSprite() {
+    const sprite = document.createElement('canvas');
+    sprite.width = GRID_SIZE;
+    sprite.height = GRID_SIZE;
+    const ctx = sprite.getContext('2d');
+    
+    // Body
+    ctx.fillStyle = '#808080'; // Gray
+    ctx.fillRect(8, 12, 24, 20);
+    
+    // Head
+    ctx.fillRect(24, 8, 16, 16);
+    
+    // Ears
+    ctx.fillStyle = '#696969'; // Darker gray
+    ctx.fillRect(26, 4, 8, 8);
+    ctx.fillRect(34, 4, 8, 8);
+    
+    // Eyes
+    ctx.fillStyle = 'black';
+    ctx.fillRect(28, 12, 4, 4);
+    ctx.fillRect(36, 12, 4, 4);
+    
+    // Nose
+    ctx.fillRect(32, 16, 4, 4);
+    
+    // Tail
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(4, 20, 8, 4);
+    
+    return sprite;
+}
+
+function createOfficerSprite() {
+    const sprite = document.createElement('canvas');
+    sprite.width = GRID_SIZE;
+    sprite.height = GRID_SIZE;
+    const ctx = sprite.getContext('2d');
+    
+    // Body
+    ctx.fillStyle = '#000080'; // Navy blue
+    ctx.fillRect(8, 12, 24, 20);
+    
+    // Head
+    ctx.fillStyle = '#FFE4C4'; // Skin tone
+    ctx.fillRect(24, 8, 16, 16);
+    
+    // Hat
+    ctx.fillStyle = '#000080';
+    ctx.fillRect(22, 4, 20, 6);
+    
+    // Badge
+    ctx.fillStyle = 'gold';
+    ctx.fillRect(16, 16, 8, 8);
+    
+    return sprite;
+}
+
+function createTeacupSprite() {
+    const sprite = document.createElement('canvas');
+    sprite.width = GRID_SIZE;
+    sprite.height = GRID_SIZE;
+    const ctx = sprite.getContext('2d');
+    
+    // Cup
+    ctx.fillStyle = 'white';
+    ctx.fillRect(12, 16, 16, 16);
+    
+    // Handle
+    ctx.fillStyle = '#D3D3D3';
+    ctx.fillRect(28, 20, 4, 8);
+    
+    // Steam
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillRect(16, 8, 4, 8);
+    ctx.fillRect(20, 4, 4, 12);
+    ctx.fillRect(24, 8, 4, 8);
+    
+    return sprite;
+}
+
+function createLightningSprite() {
+    const sprite = document.createElement('canvas');
+    sprite.width = GRID_SIZE;
+    sprite.height = GRID_SIZE;
+    const ctx = sprite.getContext('2d');
+    
+    // Lightning bolt
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(16, 4, 8, 32);
+    
+    // Glow effect
+    ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+    ctx.fillRect(12, 4, 16, 32);
+    
+    return sprite;
+}
+
+function createRescueTruckSprite() {
+    const sprite = document.createElement('canvas');
+    sprite.width = GRID_SIZE * 2;
+    sprite.height = GRID_SIZE;
+    const ctx = sprite.getContext('2d');
+    
+    // Truck body
+    ctx.fillStyle = 'red';
+    ctx.fillRect(8, 12, 48, 24);
+    
+    // Windows
+    ctx.fillStyle = 'lightblue';
+    ctx.fillRect(16, 16, 8, 8);
+    ctx.fillRect(32, 16, 8, 8);
+    
+    // Wheels
+    ctx.fillStyle = 'black';
+    ctx.fillRect(12, 36, 8, 8);
+    ctx.fillRect(36, 36, 8, 8);
+    ctx.fillRect(60, 36, 8, 8);
+    
+    // Text
+    ctx.fillStyle = 'white';
+    ctx.font = '12px Arial';
+    ctx.fillText('RESCUE', 24, 28);
+    
+    return sprite;
+}
+
+// Load sprites
+let sprites = {};
+function loadSprites() {
+    sprites = {
+        dog: createDogSprite(),
+        cat: createCatSprite(),
+        officer: createOfficerSprite(),
+        teacup: createTeacupSprite(),
+        lightning: createLightningSprite(),
+        rescueTruck: createRescueTruckSprite()
+    };
 }
 
 // Initialize the game
@@ -80,12 +218,12 @@ function init() {
     canvas.width = 800;
     canvas.height = 600;
     
+    // Load sprites
+    loadSprites();
+    
     // Initialize player position
     player.x = canvas.width / 2;
     player.y = canvas.height / 2;
-    
-    // Initialize audio
-    initAudio();
     
     // Set up event listeners
     document.addEventListener('keydown', handleKeyPress);
@@ -374,8 +512,8 @@ function drawGame() {
     
     // Draw collected animals (tail)
     player.collectedAnimals.forEach((animal, index) => {
-        ctx.fillStyle = animal.type === 'puppy' ? 'brown' : 'gray';
-        ctx.fillRect(
+        const sprite = animal.type === 'puppy' ? sprites.dog : sprites.cat;
+        ctx.drawImage(sprite, 
             player.x - (index + 1) * GRID_SIZE,
             player.y,
             GRID_SIZE,
@@ -385,20 +523,18 @@ function drawGame() {
     
     // Draw officers
     officers.forEach(officer => {
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(officer.x, officer.y, GRID_SIZE, GRID_SIZE);
+        ctx.drawImage(sprites.officer, officer.x, officer.y, GRID_SIZE, GRID_SIZE);
     });
     
     // Draw powerups
     powerups.forEach(powerup => {
-        ctx.fillStyle = powerup.type === 'teacup' ? 'white' : 'yellow';
-        ctx.fillRect(powerup.x, powerup.y, GRID_SIZE, GRID_SIZE);
+        const sprite = powerup.type === 'teacup' ? sprites.teacup : sprites.lightning;
+        ctx.drawImage(sprite, powerup.x, powerup.y, GRID_SIZE, GRID_SIZE);
     });
     
     // Draw rescue truck if present
     if (rescueTruck) {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(rescueTruck.x, rescueTruck.y, GRID_SIZE * 2, GRID_SIZE);
+        ctx.drawImage(sprites.rescueTruck, rescueTruck.x, rescueTruck.y, GRID_SIZE * 2, GRID_SIZE);
     }
 }
 
@@ -448,14 +584,5 @@ function restartGame() {
     document.getElementById('pauseMenu').style.display = 'none';
 }
 
-// Event listeners
-document.addEventListener('keydown', function(event) {
-    if (event.code === 'Space') {
-        if (!gameState.isGameOver) {
-            togglePause();
-        }
-    }
-});
-
 // Start the game when the page loads
-window.onload = init; 
+window.onload = init;
